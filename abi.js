@@ -1,5 +1,4 @@
-// ABI برای PancakeSwap و Uniswap Router (مشابه هستند)
-const swapRouterABI = [
+const pancakeRouterABI = [
   {
     "inputs": [
       { "internalType": "uint256", "name": "amountOutMin", "type": "uint256" },
@@ -58,7 +57,6 @@ const swapRouterABI = [
   }
 ];
 
-// ABI ساده برای توکن‌های ERC20 برای approve
 const erc20ABI = [
   {
     "constant": false,
@@ -72,7 +70,6 @@ const erc20ABI = [
   }
 ];
 
-// ABI برای قرارداد پاداش
 const rewardDistributorABI = [
   {
     "inputs": [],
