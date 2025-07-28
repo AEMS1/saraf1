@@ -4,11 +4,10 @@
   <meta charset="UTF-8" />
   <title>Legend Swap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-  <!-- ✅ نوار بالا -->
+  <!-- ✅ Navbar -->
   <header class="navbar">
     <div class="logo">Legend Swap</div>
     <button class="burger" id="burger" onclick="toggleMenu(this)">
@@ -16,7 +15,7 @@
     </button>
   </header>
 
-  <!-- ✅ منوی کناری -->
+  <!-- ✅ Sidebar Menu -->
   <nav id="sidebar">
     <ul>
       <li><a href="#">🏠 خانه</a></li>
@@ -26,45 +25,38 @@
     </ul>
   </nav>
 
-  <!-- ✅ بخش اصلی -->
+  <!-- ✅ Main Content -->
   <main class="content">
-    <p>کیف پول: <span id="walletAddress">Not Connected</span></p>
+    <p>کیف پول: <span id="walletAddress">متصل نیست</span></p>
     <button id="connectButton" onclick="connectWallet()">اتصال کیف پول</button>
 
-    <label>🌐 انتخاب شبکه:</label>
-    <select id="networkSelect" onchange="changeNetwork()">
-      <option value="bsc">BNB Chain</option>
-      <option value="eth">Ethereum</option>
+    <select id="networkSelector" onchange="changeNetwork()">
+      <option value="bsc">🟡 BNB Chain</option>
+      <option value="eth">🟣 Ethereum</option>
     </select>
 
-    <label>از توکن:</label>
     <select id="fromToken"></select>
-
-    <label>به توکن:</label>
     <select id="toToken"></select>
-
-    <input type="number" id="amount" placeholder="مقدار را وارد کنید" />
-
+    <input type="number" id="amount" placeholder="مقدار" />
     <button id="reverseButton" onclick="reverseTokens()">🔁 جابجایی</button>
 
-    <div id="priceInfo">💱 نرخ لحظه‌ای: -</div>
-    <div id="receiveInfo">📥 مقدار دریافتی: -</div>
-
-    <button id="swapButton" onclick="swapTokens()">🔄 انجام سواپ</button>
+    <div id="priceInfo">-</div>
+    <button id="swapButton" onclick="swapTokens()">🔄 سواپ</button>
     <div id="status"></div>
   </main>
 
-  <!-- ✅ اسکریپت‌ها -->
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-  <script src="abi.js"></script>
-  <script src="tokens.js"></script>
-  <script src="main.js"></script>
-
+  <!-- ✅ Scripts -->
   <script>
     function toggleMenu(btn) {
       btn.classList.toggle("open");
       document.getElementById("sidebar").classList.toggle("active");
     }
   </script>
+
+  <!-- ✅ Script Files -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <script src="abi.js"></script>
+  <script src="tokens.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
