@@ -1,35 +1,19 @@
+// لیست توکن‌هایی که قابل انتخاب هستند
 const tokens = [
-  // شبکه BNB Smart Chain
   {
     symbol: "BNB",
-    address: "native", // نشان‌دهنده توکن پایه شبکه BNB
-    chainId: 56
+    address: "BNB" // علامت اختصاصی برای native BNB
+  },
+  {
+    symbol: "BUSD",
+    address: "0xe9e7cea3dedca5984780bafc599bd69add087d56"
   },
   {
     symbol: "USDT",
-    address: "0x55d398326f99059ff775485246999027b3197955",
-    chainId: 56
+    address: "0x55d398326f99059fF775485246999027B3197955"
   },
   {
-    symbol: "LGD",
-    address: "0x4751C0DE56EFB3770615097347cbF131D302498A",
-    chainId: 56
-  },
-
-  // شبکه Ethereum
-  {
-    symbol: "ETH",
-    address: "native", // نشان‌دهنده توکن پایه شبکه ETH
-    chainId: 1
-  },
-  {
-    symbol: "USDC",
-    address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    chainId: 1
-  },
-  {
-    symbol: "DAI",
-    address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-    chainId: 1
+    symbol: "LEGEND",
+    address: "0x0665872f3f3af2d2d20bfb030a94e3a8b2753f70"
   }
 ];
