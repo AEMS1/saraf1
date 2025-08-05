@@ -2,55 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AEMS Swap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Legend Swap</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-  <script src="tokens.js"></script>
-  <script src="abi.js"></script>
-  <script src="main.js" defer></script>
+  <link rel="icon" href="images/logo.png" type="image/png" />
 </head>
 <body>
+
+  <!-- Navigation -->
   <header>
-    <div class="logo">AEMS Swap</div>
-    <button class="burger" id="burger" onclick="toggleMenu(this)">
-      <span></span><span></span><span></span>
-    </button>
-    <ul class="nav" id="navMenu">
-      <li><a href="1index.php">Swap 💱</a></li>
-      <li><a href="cc.php">Pre-sale tokens 💰</a></li>
-      <li><a href="3index.html">Invite 🎁</a></li>
-      <li><a href="4index.html">About us 📘</a></li>
-    </ul>
+    <div class="container">
+      <img src="images/logo.png" alt="Logo" class="logo" />
+      <nav id="navbar" class="nav">
+        <ul>
+          <li><a href="#">خانه</a></li>
+          <li><a href="#">درباره</a></li>
+          <li><a href="#">توکن‌ها</a></li>
+        </ul>
+      </nav>
+      <div class="burger" onclick="toggleMenu()">☰</div>
+    </div>
   </header>
 
+  <!-- Main Swap Interface -->
   <main>
-    <section class="wallet-info">
-      <p>Wallet: <span id="walletAddress">Not Connected</span></p>
-      <button id="connectButton" onclick="connectWallet()">Connect wallet</button>
-    </section>
-
     <section class="swap-box">
+      <h2>مبدل غیرمتمرکز LEGEND</h2>
+      <button id="connectButton">اتصال کیف پول</button>
+
       <div class="token-select">
-        <label>From Token</label>
+        <label for="fromToken">از:</label>
         <select id="fromToken"></select>
-        <div id="fromPrice">Price: -</div>
+        <input type="number" id="fromAmount" placeholder="مقدار"/>
+        <div id="fromPriceUSD" class="price-box"></div>
       </div>
-
-      <input type="number" id="amount" placeholder="Amount" />
-      <button id="reverseButton" onclick="reverseTokens()">🔁 Displacement</button>
 
       <div class="token-select">
-        <label>To Token</label>
+        <label for="toToken">به:</label>
         <select id="toToken"></select>
-        <div id="toPrice">Price: -</div>
+        <input type="number" id="toAmount" readonly />
+        <div id="toPriceUSD" class="price-box"></div>
       </div>
 
-      <div id="priceInfo">Receiving: -</div>
-      <button id="swapButton" onclick="swapTokens()">🔄 Swap</button>
-      <div id="status"></div>
-      <div id="timer">Next update in: <span id="countdown">60</span> seconds</div>
+      <div id="estimatedOutput" class="info-box">مقدار دریافتی: 0</div>
+      <div id="countdown" class="countdown">قیمت‌ها تا بروزرسانی: 60</div>
+
+      <button id="swapButton">سواپ</button>
     </section>
   </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 LEGEND DEX - تمام حقوق محفوظ است.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="tokens.js"></script>
+  <script src="abi.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <script src="main.js"></script>
+
 </body>
 </html>
