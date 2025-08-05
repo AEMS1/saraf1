@@ -1,62 +1,67 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Legend Swap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEMS Swap</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
+  <script defer src="tokens.js"></script>
+  <script defer src="abi.js"></script>
+  <script defer src="main.js"></script>
 </head>
 <body>
-  <!-- ✅ Navbar -->
-  <header class="navbar">
-    <div class="logo">Legend Swap</div>
-    <button class="burger" id="burger" onclick="toggleMenu(this)">
-      <span></span><span></span><span></span>
-    </button>
+  <header>
+    <div class="navbar">
+      <div class="logo">AEMS Swap</div>
+      <button class="burger" id="burger" onclick="toggleMenu(this)">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="1index.php">Swap 🚱</a></li>
+        <li><a href="cc.php">Pre-sale Tokens 💰</a></li>
+        <li><a href="3index.html">Invite 🏱</a></li>
+        <li><a href="4index.html">About Us 📘</a></li>
+      </ul>
+    </div>
   </header>
 
-  <!-- ✅ Sidebar Menu -->
-  <nav id="sidebar">
-    <ul>
-      <li><a href="#">🏠 خانه</a></li>
-      <li><a href="#">💱 سواپ</a></li>
-      <li><a href="#">🎁 دعوت</a></li>
-      <li><a href="#">⚙️ تنظیمات</a></li>
-    </ul>
-  </nav>
+  <main>
+    <section class="swap-box">
+      <p>Wallet: <span id="walletAddress">Not Connected</span></p>
+      <button id="connectButton" onclick="connectWallet()">Connect Wallet</button>
 
-  <!-- ✅ Main Content -->
-  <main class="content">
-    <p>کیف پول: <span id="walletAddress">متصل نیست</span></p>
-    <button id="connectButton" onclick="connectWallet()">اتصال کیف پول</button>
+      <div class="token-section">
+        <label>From:</label>
+        <select id="fromToken"></select>
 
-    <select id="networkSelector" onchange="changeNetwork()">
-      <option value="bsc">🟡 BNB Chain</option>
-      <option value="eth">🟣 Ethereum</option>
-    </select>
+        <label>To:</label>
+        <select id="toToken"></select>
 
-    <select id="fromToken"></select>
-    <select id="toToken"></select>
-    <input type="number" id="amount" placeholder="مقدار" />
-    <button id="reverseButton" onclick="reverseTokens()">🔁 جابجایی</button>
+        <input type="number" id="amount" placeholder="Amount" />
+        <button id="reverseButton" onclick="reverseTokens()">🔁 Swap Tokens</button>
+      </div>
 
-    <div id="priceInfo">-</div>
-    <button id="swapButton" onclick="swapTokens()">🔄 سواپ</button>
-    <div id="status"></div>
+      <div class="prices">
+        <p id="priceUSDFrom">Price (From) in $: -</p>
+        <p id="priceUSDTo">Price (To) in $: -</p>
+        <p id="priceInfo">Received Amount: -</p>
+      </div>
+
+      <div id="timer">Updating in: <span id="countdown">60</span> sec</div>
+
+      <button id="swapButton" onclick="swapTokens()">🔄 Swap</button>
+      <div id="status"></div>
+    </section>
   </main>
 
-  <!-- ✅ Scripts -->
   <script>
-    function toggleMenu(btn) {
-      btn.classList.toggle("open");
-      document.getElementById("sidebar").classList.toggle("active");
+    function toggleMenu(x) {
+      x.classList.toggle("open");
+      document.getElementById("nav-menu").classList.toggle("active");
     }
   </script>
-
-  <!-- ✅ Script Files -->
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-  <script src="abi.js"></script>
-  <script src="tokens.js"></script>
-  <script src="main.js"></script>
 </body>
 </html>
