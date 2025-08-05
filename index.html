@@ -5,63 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AEMS Swap</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
-  <script defer src="tokens.js"></script>
-  <script defer src="abi.js"></script>
-  <script defer src="main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <script src="tokens.js"></script>
+  <script src="abi.js"></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
   <header>
-    <div class="navbar">
-      <div class="logo">AEMS Swap</div>
-      <button class="burger" id="burger" onclick="toggleMenu(this)">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <ul class="nav-menu" id="nav-menu">
-        <li><a href="1index.php">Swap 🚱</a></li>
-        <li><a href="cc.php">Pre-sale Tokens 💰</a></li>
-        <li><a href="3index.html">Invite 🏱</a></li>
-        <li><a href="4index.html">About Us 📘</a></li>
-      </ul>
-    </div>
+    <div class="logo">AEMS Swap</div>
+    <button class="burger" id="burger" onclick="toggleMenu(this)">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav" id="navMenu">
+      <li><a href="1index.php">Swap 💱</a></li>
+      <li><a href="cc.php">Pre-sale tokens 💰</a></li>
+      <li><a href="3index.html">Invite 🎁</a></li>
+      <li><a href="4index.html">About us 📘</a></li>
+    </ul>
   </header>
 
   <main>
-    <section class="swap-box">
+    <section class="wallet-info">
       <p>Wallet: <span id="walletAddress">Not Connected</span></p>
-      <button id="connectButton" onclick="connectWallet()">Connect Wallet</button>
+      <button id="connectButton" onclick="connectWallet()">Connect wallet</button>
+    </section>
 
-      <div class="token-section">
-        <label>From:</label>
+    <section class="swap-box">
+      <div class="token-select">
+        <label>From Token</label>
         <select id="fromToken"></select>
+        <div id="fromPrice">Price: -</div>
+      </div>
 
-        <label>To:</label>
+      <input type="number" id="amount" placeholder="Amount" />
+      <button id="reverseButton" onclick="reverseTokens()">🔁 Displacement</button>
+
+      <div class="token-select">
+        <label>To Token</label>
         <select id="toToken"></select>
-
-        <input type="number" id="amount" placeholder="Amount" />
-        <button id="reverseButton" onclick="reverseTokens()">🔁 Swap Tokens</button>
+        <div id="toPrice">Price: -</div>
       </div>
 
-      <div class="prices">
-        <p id="priceUSDFrom">Price (From) in $: -</p>
-        <p id="priceUSDTo">Price (To) in $: -</p>
-        <p id="priceInfo">Received Amount: -</p>
-      </div>
-
-      <div id="timer">Updating in: <span id="countdown">60</span> sec</div>
-
+      <div id="priceInfo">Receiving: -</div>
       <button id="swapButton" onclick="swapTokens()">🔄 Swap</button>
       <div id="status"></div>
+      <div id="timer">Next update in: <span id="countdown">60</span> seconds</div>
     </section>
   </main>
-
-  <script>
-    function toggleMenu(x) {
-      x.classList.toggle("open");
-      document.getElementById("nav-menu").classList.toggle("active");
-    }
-  </script>
 </body>
 </html>
