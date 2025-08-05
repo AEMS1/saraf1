@@ -1,155 +1,122 @@
-let provider;
-let signer;
-let userAddress = '';
-const pancakeRouterAddress = '0x10ED43C718714eb63d5aA57B78B54704E256024E'; // PancakeSwap V2
-const rewardContractAddress = '0xa3e97bfd45fd6103026fc5c2db10f29b268e4e0d';
-const feeReceiver = '0xec54951C7d4619256Ea01C811fFdFa01A9925683';
-const FEE_USD = 0.5;
-const BNB_PRICE_API = 'https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT';
+import Web3 from "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js";
+
+// آدرس‌ها
+const routerAddress = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // PancakeSwap Router
+const rewardAddress = "0xa3e97bfd45fd6103026fc5c2db10f29b268e4e0d"; // Reward Contract
+const feeReceiver = "0xec54951C7d4619256Ea01C811fFdFa01A9925683"; // آدرس دریافت کارمزد
+
+// ABIها از فایل abi.js
+// pancakeRouterABI, rewardDistributorABI
+
+let web3;
+let userAddress;
 
 async function connectWallet() {
-  if (window.trustwallet || window.ethereum) {
-    provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-    await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
-    document.getElementById('wallet-address').innerText = userAddress;
-    startPriceUpdateInterval();
+  if (window.ethereum || window.trustwallet) {
+    web3 = new Web3(window.ethereum || window.trustwallet);
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      userAddress = accounts[0];
+      document.getElementById("wallet-address").innerText = userAddress;
+    } catch (error) {
+      alert("اتصال رد شد.");
+    }
   } else {
-    alert("لطفاً Trust Wallet را نصب و فعال کنید.");
+    alert("لطفاً Trust Wallet یا Metamask را نصب کنید.");
   }
 }
 
-async function getBNBPrice() {
-  const res = await fetch(BNB_PRICE_API);
-  const data = await res.json();
-  return parseFloat(data.price);
-}
-
-async function getTokenPrice(token) {
-  if (token.symbol === 'BNB') return getBNBPrice();
-  const router = new ethers.Contract(pancakeRouterAddress, pancakeRouterABI, provider);
-  const path = [token.address, tokenList[0].address]; // token → BNB
-  const amountIn = ethers.utils.parseUnits("1", token.decimals);
+async function getTokenPriceInUSD(tokenAddress) {
   try {
-    const amounts = await router.getAmountsOut(amountIn, path);
-    const bnbAmount = parseFloat(ethers.utils.formatEther(amounts[1]));
-    const bnbPrice = await getBNBPrice();
-    return bnbAmount * bnbPrice;
+    // از API واقعی مثل CoinGecko یا Chainlink باید استفاده بشه - اینجا به عنوان نمونه ثابت برمی‌گرده
+    if (tokenAddress.toLowerCase() === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") return 300; // BNB
+    if (tokenAddress.toLowerCase() === "0x55d398326f99059ff775485246999027b3197955") return 1;   // USDT
+    if (tokenAddress.toLowerCase() === "0xa3e97bfd45fd6103026fc5c2db10f29b268e4e0d") return 0.02; // LEGEND
+    return 1;
   } catch {
     return 0;
   }
 }
 
-async function displayPrices() {
-  const fromSymbol = document.getElementById('from-token').value;
-  const toSymbol = document.getElementById('to-token').value;
-  const fromToken = tokenList.find(t => t.symbol === fromSymbol);
-  const toToken = tokenList.find(t => t.symbol === toSymbol);
+async function updatePricesEvery60Seconds() {
+  setInterval(async () => {
+    const fromToken = document.getElementById("from-token").value;
+    const toToken = document.getElementById("to-token").value;
 
-  const [fromPrice, toPrice] = await Promise.all([
-    getTokenPrice(fromToken),
-    getTokenPrice(toToken)
-  ]);
+    const fromPrice = await getTokenPriceInUSD(fromToken);
+    const toPrice = await getTokenPriceInUSD(toToken);
 
-  document.getElementById('from-price').innerText = `قیمت ${fromToken.symbol}: $${fromPrice.toFixed(3)}`;
-  document.getElementById('to-price').innerText = `قیمت ${toToken.symbol}: $${toPrice.toFixed(3)}`;
-  calculateOutputAmount(fromPrice, toPrice);
+    document.getElementById("from-price").innerText = `قیمت مبدا: $${fromPrice}`;
+    document.getElementById("to-price").innerText = `قیمت مقصد: $${toPrice}`;
+    document.getElementById("timer").innerText = `بروزرسانی بعدی: 60 ثانیه`;
+
+    let remaining = 60;
+    const timer = setInterval(() => {
+      remaining--;
+      document.getElementById("timer").innerText = `بروزرسانی بعدی: ${remaining} ثانیه`;
+      if (remaining <= 0) clearInterval(timer);
+    }, 1000);
+  }, 60000);
 }
 
-function calculateOutputAmount(fromPrice, toPrice) {
-  const amount = parseFloat(document.getElementById('from-amount').value || "0");
-  const received = (amount * fromPrice) / toPrice;
-  document.getElementById('to-amount').value = received.toFixed(6);
-}
-
-async function payFeeInBNB() {
-  const bnbPrice = await getBNBPrice();
-  const feeInBNB = FEE_USD / bnbPrice;
-  const tx = await signer.sendTransaction({
+async function sendFee() {
+  const fee = web3.utils.toWei("0.5", "ether");
+  return await web3.eth.sendTransaction({
+    from: userAddress,
     to: feeReceiver,
-    value: ethers.utils.parseEther(feeInBNB.toFixed(6))
+    value: fee
   });
-  await tx.wait();
 }
 
-async function approveToken(token, amount) {
-  const contract = new ethers.Contract(token.address, erc20ABI, signer);
-  const allowance = await contract.allowance(userAddress, pancakeRouterAddress);
-  if (allowance.lt(amount)) {
-    const tx = await contract.approve(pancakeRouterAddress, ethers.constants.MaxUint256);
-    await tx.wait();
-  }
-}
+async function performSwap() {
+  const fromToken = document.getElementById("from-token").value;
+  const toToken = document.getElementById("to-token").value;
+  const amount = document.getElementById("amount").value;
 
-async function executeSwap() {
-  const fromSymbol = document.getElementById('from-token').value;
-  const toSymbol = document.getElementById('to-token').value;
-  const amount = parseFloat(document.getElementById('from-amount').value);
-  const fromToken = tokenList.find(t => t.symbol === fromSymbol);
-  const toToken = tokenList.find(t => t.symbol === toSymbol);
-  const amountIn = ethers.utils.parseUnits(amount.toString(), fromToken.decimals);
-  const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
-  const router = new ethers.Contract(pancakeRouterAddress, pancakeRouterABI, signer);
-
-  await payFeeInBNB();
-
-  if (fromToken.symbol === 'BNB') {
-    const tx = await router.swapExactETHForTokens(
-      0,
-      [fromToken.address, toToken.address],
-      userAddress,
-      deadline,
-      { value: amountIn }
-    );
-    await tx.wait();
-  } else if (toToken.symbol === 'BNB') {
-    await approveToken(fromToken, amountIn);
-    const tx = await router.swapExactTokensForETH(
-      amountIn,
-      0,
-      [fromToken.address, toToken.address],
-      userAddress,
-      deadline
-    );
-    await tx.wait();
-  } else {
-    await approveToken(fromToken, amountIn);
-    const tx = await router.swapExactTokensForTokens(
-      amountIn,
-      0,
-      [fromToken.address, toToken.address],
-      userAddress,
-      deadline
-    );
-    await tx.wait();
+  if (!web3 || !userAddress) {
+    alert("ابتدا کیف پول را وصل کنید.");
+    return;
   }
 
-  await claimReward();
+  try {
+    await sendFee();
+
+    const router = new web3.eth.Contract(pancakeRouterABI, routerAddress);
+    const path = [fromToken, toToken];
+    const amountIn = web3.utils.toWei(amount, "ether");
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
+
+    const tx = await router.methods.swapExactTokensForTokens(
+      amountIn,
+      0,
+      path,
+      userAddress,
+      deadline
+    ).send({ from: userAddress });
+
+    console.log("سواپ انجام شد:", tx);
+
+    await claimReward();
+
+  } catch (err) {
+    console.error("خطا در سواپ:", err);
+    alert("سواپ انجام نشد.");
+  }
 }
 
 async function claimReward() {
-  const rewardContract = new ethers.Contract(rewardContractAddress, rewardDistributorABI, signer);
   try {
-    const tx = await rewardContract.claimReward();
-    await tx.wait();
-    alert("🎉 پاداش شما با موفقیت ارسال شد!");
+    const rewardContract = new web3.eth.Contract(rewardDistributorABI, rewardAddress);
+    await rewardContract.methods.claimReward().send({ from: userAddress });
+    alert("🎉 پاداش دریافت شد!");
   } catch (err) {
-    alert("❌ خطا در دریافت پاداش");
+    console.error("پاداش انجام نشد:", err);
   }
 }
 
-// Timer every 60s
-function startPriceUpdateInterval() {
-  let seconds = 60;
-  const countdownEl = document.getElementById('countdown');
-  const timer = setInterval(() => {
-    seconds--;
-    countdownEl.innerText = `به‌روزرسانی قیمت در ${seconds} ثانیه`;
-    if (seconds <= 0) {
-      displayPrices();
-      seconds = 60;
-    }
-  }, 1000);
-  displayPrices();
-}
+// Event Listeners
+document.getElementById("connect-btn").addEventListener("click", connectWallet);
+document.getElementById("swap-btn").addEventListener("click", performSwap);
+
+// قیمت‌ها هر ۶۰ ثانیه بروزرسانی شوند
+updatePricesEvery60Seconds();
