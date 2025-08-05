@@ -1,159 +1,152 @@
-/* ✅ Global Styles */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
 }
 
 body {
-  font-family: Tahoma, sans-serif;
-  background-color: #121212;
-  color: #eee;
-  padding-top: 60px;
+  background-color: #0e0e0e;
+  color: white;
+  min-height: 100vh;
 }
 
-/* ✅ Navbar */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50px;
-  background-color: #1a1a1a;
+header {
+  background-color: #111;
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 15px;
-  z-index: 1000;
-  border-bottom: 1px solid #333;
+  position: relative;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .logo {
+  font-size: 1.5rem;
   font-weight: bold;
-  font-size: 1.4rem;
-  color: #00ffd0;
+  color: #00ffc8;
 }
 
-.burger {
-  width: 28px;
-  height: 22px;
-  flex-direction: column;
-  justify-content: space-between;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 1001;
+.nav-menu {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
 }
 
-.burger span {
-  display: block;
-  height: 3px;
-  background-color: #00ffd0;
-  border-radius: 2px;
+.nav-menu li a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
   transition: 0.3s;
 }
 
-.burger.open span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-.burger.open span:nth-child(2) {
-  opacity: 0;
-}
-.burger.open span:nth-child(3) {
-  transform: rotate(-45deg) translate(6px, -6px);
+.nav-menu li a:hover {
+  color: #00ffc8;
 }
 
-/* ✅ Sidebar */
-#sidebar {
-  position: fixed;
-  top: 50px;
-  right: -260px;
-  width: 250px;
-  height: 100%;
-  background-color: #222;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.7);
-  transition: right 0.3s ease;
-  padding-top: 20px;
-  z-index: 999;
-  direction: rtl;
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 20px;
+  width: 25px;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-#sidebar.active {
-  right: 0;
-}
-
-#sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-#sidebar ul li a {
-  display: block;
-  padding: 15px 25px;
-  color: #eee;
-  text-decoration: none;
-  font-size: 1.1rem;
-  border-bottom: 1px solid #333;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-#sidebar ul li a:hover {
-  background-color: #00ffd0;
-  color: #121212;
-}
-
-/* ✅ Main Content */
-main.content {
-  max-width: 480px;
-  margin: 20px auto;
-  padding: 15px;
-  background-color: #222;
-  border-radius: 10px;
-  box-shadow: 0 0 8px #00ffd0aa;
-  direction: rtl;
-}
-
-select,
-input[type="number"],
-button {
+.burger span {
+  height: 3px;
   width: 100%;
-  margin: 8px 0;
+  background-color: white;
+  border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+  .burger {
+    display: flex;
+  }
+
+  .nav-menu {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    flex-direction: column;
+    width: 100%;
+    background-color: #1c1c1c;
+    padding: 1rem;
+  }
+
+  .nav-menu.active {
+    display: flex;
+  }
+
+  .nav-menu li {
+    margin: 0.5rem 0;
+  }
+}
+
+.swap-box {
+  margin: 4rem auto;
+  max-width: 500px;
+  background-color: #1c1c1c;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.2);
+}
+
+.swap-box p,
+.swap-box label {
+  margin: 0.5rem 0;
+}
+
+input,
+select {
+  width: 100%;
   padding: 10px;
+  margin: 0.5rem 0 1rem;
   border-radius: 6px;
   border: none;
-  font-size: 1rem;
+  background-color: #2a2a2a;
+  color: white;
 }
 
 button {
-  background-color: #00ffd0;
-  color: #121212;
+  width: 100%;
+  padding: 12px;
+  background-color: #00ffc8;
+  color: #000;
   font-weight: bold;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: 0.3s;
 }
 
 button:hover {
-  background-color: #00c9a7;
-}
-
-#priceInfo {
-  font-size: 1.2rem;
-  margin-top: 15px;
-  text-align: center;
-  color: #00ffd0;
+  background-color: #00cfa4;
 }
 
 #status {
-  margin-top: 10px;
-  font-size: 1rem;
-  text-align: center;
-  min-height: 20px;
+  margin-top: 1rem;
+  min-height: 24px;
 }
 
-/* ✅ Responsive */
-@media (max-width: 600px) {
-  main.content {
-    margin: 10px;
-    width: auto;
-  }
+.prices p {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+#timer {
+  margin-top: 0.5rem;
+  color: #aaa;
+  font-size: 0.85rem;
+  text-align: center;
 }
