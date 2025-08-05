@@ -1,77 +1,83 @@
-// ABI مربوط به PancakeSwap Router
+// PancakeSwap Router ABI
 const pancakeRouterABI = [
   {
-    "name": "getAmountsOut",
-    "type": "function",
     "inputs": [
-      { "type": "uint256", "name": "amountIn" },
-      { "type": "address[]", "name": "path" }
+      { "internalType": "uint256", "name": "amountOutMin", "type": "uint256" },
+      { "internalType": "address[]", "name": "path", "type": "address[]" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" }
     ],
-    "outputs": [
-      { "type": "uint256[]", "name": "amounts" }
-    ],
-    "constant": true,
-    "payable": false,
-    "stateMutability": "view"
-  },
-  {
     "name": "swapExactETHForTokens",
-    "type": "function",
-    "inputs": [
-      { "type": "uint256", "name": "amountOutMin" },
-      { "type": "address[]", "name": "path" },
-      { "type": "address", "name": "to" },
-      { "type": "uint256", "name": "deadline" }
-    ],
-    "outputs": [{ "type": "uint256[]", "name": "amounts" }],
-    "payable": true
+    "outputs": [{ "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }],
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountOutMin", "type": "uint256" },
+      { "internalType": "address[]", "name": "path", "type": "address[]" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" }
+    ],
     "name": "swapExactTokensForETH",
-    "type": "function",
-    "inputs": [
-      { "type": "uint256", "name": "amountIn" },
-      { "type": "uint256", "name": "amountOutMin" },
-      { "type": "address[]", "name": "path" },
-      { "type": "address", "name": "to" },
-      { "type": "uint256", "name": "deadline" }
-    ],
-    "outputs": [{ "type": "uint256[]", "name": "amounts" }]
+    "outputs": [{ "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "name": "swapExactTokensForTokens",
-    "type": "function",
     "inputs": [
-      { "type": "uint256", "name": "amountIn" },
-      { "type": "uint256", "name": "amountOutMin" },
-      { "type": "address[]", "name": "path" },
-      { "type": "address", "name": "to" },
-      { "type": "uint256", "name": "deadline" }
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountOutMin", "type": "uint256" },
+      { "internalType": "address[]", "name": "path", "type": "address[]" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" }
     ],
-    "outputs": [{ "type": "uint256[]", "name": "amounts" }]
+    "name": "swapExactTokensForTokens",
+    "outputs": [{ "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "address[]", "name": "path", "type": "address[]" }
+    ],
+    "name": "getAmountsOut",
+    "outputs": [{ "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }],
+    "stateMutability": "view",
+    "type": "function"
   }
 ];
 
-// ABI مربوط به توکن‌های ERC20
+// ERC-20 ABI (approve)
 const erc20ABI = [
   {
-    "name": "approve",
-    "type": "function",
+    "constant": false,
     "inputs": [
-      { "type": "address", "name": "spender" },
-      { "type": "uint256", "name": "amount" }
+      { "name": "_spender", "type": "address" },
+      { "name": "_value", "type": "uint256" }
     ],
-    "outputs": [{ "type": "bool", "name": "" }]
+    "name": "approve",
+    "outputs": [{ "name": "", "type": "bool" }],
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [{ "name": "", "type": "uint8" }],
+    "type": "function"
   }
 ];
 
-// ABI قرارداد پاداش
+// Reward Contract ABI
 const rewardDistributorABI = [
   {
-    "name": "claimReward",
-    "type": "function",
     "inputs": [],
+    "name": "claimReward",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ];
