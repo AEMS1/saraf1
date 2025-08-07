@@ -1,0 +1,67 @@
+body {
+  font-family: sans-serif;
+  direction: rtl;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.swap-form label,
+.swap-form input,
+.swap-form select,
+.swap-form button {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.swap-form input,
+.swap-form select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.swap-form button {
+  background: #28a745;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.swap-form button:hover {
+  background: #218838;
+}
+
+#wallet-address {
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+}
+
+.info {
+  background: #f3f3f3;
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #333;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>صرافی غیرمتمرکز ساده</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>صرافی غیرمتمرکز</h1>
+
+    <div class="wallet-connect">
+      <button id="connect-wallet-btn">اتصال کیف پول (متامسک / تراست ولت)</button>
+      <p id="wallet-address"></p>
+    </div>
+
+    <div class="swap-form">
+      <label for="from-token-select">از توکن:</label>
+      <select id="from-token-select"></select>
+
+      <label for="to-token-select">به توکن:</label>
+      <select id="to-token-select"></select>
+
+      <label for="amount-input">مقدار:</label>
+      <input type="number" id="amount-input" placeholder="مقدار را وارد کنید" />
+
+      <div class="info">
+        <p><strong>💰 قیمت لحظه‌ای توکن مبدا:</strong> <span id="from-price">---</span></p>
+        <p><strong>💰 قیمت لحظه‌ای توکن مقصد:</strong> <span id="to-price">---</span></p>
+        <p><strong>📦 مقدار دریافتی کاربر:</strong> <span id="user-receive-amount">---</span></p>
+      </div>
+
+      <button id="swap-btn">سواپ کن</button>
+      <p id="status-msg"></p>
+    </div>
+  </div>
+
+  <script src="tokens.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
