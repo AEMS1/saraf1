@@ -1,67 +1,89 @@
 body {
-  font-family: sans-serif;
+  font-family: Tahoma, sans-serif;
   direction: rtl;
-  background: #f5f5f5;
+  background: #0f172a;
   margin: 0;
   padding: 0;
+  color: #e6eef8;
 }
 
 .container {
-  max-width: 500px;
+  max-width: 720px;
   margin: 40px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  background: linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.7);
+  border: 1px solid rgba(255,255,255,0.03);
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  color: #60a5fa;
+  font-size: 28px;
 }
 
-.swap-form label,
-.swap-form input,
-.swap-form select,
-.swap-form button {
+.wallet-connect {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+#wallet-address {
+  font-size: 13px;
+  color: #34d399;
+  margin-top: 8px;
+  word-break: break-all;
+}
+
+.swap-form label {
   display: block;
-  width: 100%;
-  margin-bottom: 15px;
-  font-size: 16px;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #cbd5e1;
 }
 
 .swap-form input,
 .swap-form select {
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  color: #e6eef8;
+  font-size: 15px;
 }
 
 .swap-form button {
-  background: #28a745;
-  color: white;
+  width: 100%;
+  margin-top: 16px;
   padding: 12px;
+  background: linear-gradient(90deg,#2563eb,#7c3aed);
+  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 700;
 }
 
 .swap-form button:hover {
-  background: #218838;
-}
-
-#wallet-address {
-  font-size: 14px;
-  color: #555;
-  text-align: center;
+  opacity: 0.95;
 }
 
 .info {
-  background: #f3f3f3;
-  padding: 10px;
-  margin-top: 15px;
+  background: rgba(255,255,255,0.02);
+  padding: 12px;
+  margin-top: 12px;
   border-radius: 8px;
-  font-size: 15px;
-  color: #333;
-  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  font-size: 14px;
+  color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(2,6,23,0.6);
+}
+
+#status-msg {
+  margin-top: 12px;
+  text-align: center;
+  color: #fbbf24;
+  font-weight: 600;
 }
