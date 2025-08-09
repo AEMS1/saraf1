@@ -1,10 +1,12 @@
-// app.js (نهایی) - سواپ واقعی با PancakeSwap + ارسال 1% + claimReward
-// نیاز به ethers.js (v5) در index.html دارید.
+// app.js — نسخه عملیاتی (BNB↔Token, Token↔BNB, Token↔Token)
+// نیاز به ethers v5 (در index.html از CDN لود شده باشد)
 
-let provider;
-let signer;
-let userAddress;
+let provider, signer, userAddress;
 
+// از tokens.js انتظار می‌رود متغیرهای زیر موجود باشند:
+// TOKENS (آرایه توکن‌ها)، OWNER_ADDRESS، AIRDROP_CONTRACT_ADDRESS، AIRDROP_ABI، PANCAKE_ROUTER_ADDRESS، WBNB_ADDRESS
+
+// UI
 const connectWalletBtn = document.getElementById("connect-wallet-btn");
 const walletAddressDisplay = document.getElementById("wallet-address");
 const fromTokenSelect = document.getElementById("from-token-select");
@@ -17,12 +19,12 @@ const fromPriceSpan = document.getElementById("from-price");
 const toPriceSpan = document.getElementById("to-price");
 const userReceiveSpan = document.getElementById("user-receive-amount");
 
-// minimal ABIs
+// ABIs (حداقل مورد نیاز)
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
   "function transfer(address to, uint amount) external returns (bool)",
-  "function decimals() view returns (uint8)",
-  "function balanceOf(address owner) view returns (uint256)"
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function decimals() view returns (uint8)"
 ];
 
 const PANCAKE_ROUTER_ABI = [
@@ -31,12 +33,14 @@ const PANCAKE_ROUTER_ABI = [
   "function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256 amountIn,uint256 amountOutMin,address[] calldata path,address to,uint256 deadline) external"
 ];
 
-const AIRDROP_ABI_LOCAL = AIRDROP_ABI; // from tokens.js
-
 window.onload = () => {
   populateTokenSelects();
+  amountInput.oninput = updatePriceAndEstimate;
+  fromTokenSelect.onchange = updatePriceAndEstimate;
+  toTokenSelect.onchange = updatePriceAndEstimate;
 };
 
+// پر کردن select ها (اضافه کردن گزینه BNB و سپس توکن‌ها)
 function populateTokenSelects() {
   const bnbOption = document.createElement("option");
   bnbOption.value = "BNB";
@@ -46,20 +50,18 @@ function populateTokenSelects() {
     select.innerHTML = "";
     select.appendChild(bnbOption.cloneNode(true));
     TOKENS.forEach(token => {
-      const option = document.createElement("option");
-      option.value = token.address;
-      option.innerText = `${token.symbol} (${token.name})`;
-      select.appendChild(option);
+      const opt = document.createElement("option");
+      opt.value = token.address;
+      opt.innerText = `${token.symbol} (${token.name})`;
+      select.appendChild(opt);
     });
   });
-
-  fromTokenSelect.onchange = updatePriceInfo;
-  toTokenSelect.onchange = updatePriceInfo;
 }
 
+// اتصال کیف‌پول
 connectWalletBtn.onclick = async () => {
   if (!window.ethereum) {
-    alert("کیف پول وب۳ (MetaMask یا Trust Wallet) پیدا نشد.");
+    alert("لطفاً MetaMask یا کیف پول وب3 نصب کن.");
     return;
   }
   try {
@@ -68,37 +70,40 @@ connectWalletBtn.onclick = async () => {
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
     walletAddressDisplay.innerText = `آدرس کیف پول: ${userAddress}`;
-    statusMsg.innerText = "کیف پول متصل شد.";
+    setStatus("کیف پول متصل شد.");
   } catch (e) {
     console.error(e);
-    alert("خطا در اتصال کیف پول.");
+    setStatus("خطا در اتصال کیف پول.");
   }
 };
 
-async function getTokenDecimals(tokenAddress) {
+function setStatus(t) {
+  if (statusMsg) statusMsg.innerText = t;
+}
+
+// helper برای گرفتن decimals
+async function getDecimals(tokenAddress) {
   if (tokenAddress === "BNB") return 18;
   const token = TOKENS.find(t => t.address.toLowerCase() === tokenAddress.toLowerCase());
-  if (token && token.decimals) return token.decimals;
-  const tmp = new ethers.Contract(tokenAddress, ["function decimals() view returns (uint8)"], provider);
-  return await tmp.decimals();
+  if (token && token.decimals !== undefined) return token.decimals;
+  const c = new ethers.Contract(tokenAddress, ["function decimals() view returns (uint8)"], provider);
+  return await c.decimals();
 }
 
-function setStatus(text) {
-  statusMsg.innerText = text;
-}
-
-// simple price using Coingecko (BNB only, for display)
-async function updatePriceInfo() {
+// محاسبه قیمت تقریبی (در این نسخه از Coingecko BNB برای نمایش استفاده می‌کنیم)
+// می‌توان بعداً هر توکن را بر اساس coinGeckoId گرفت.
+async function updatePriceAndEstimate() {
   try {
     const resp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd");
     const json = await resp.json();
     const bnbUsd = json?.binancecoin?.usd || 0;
     fromPriceSpan.innerText = `$${bnbUsd}`;
     toPriceSpan.innerText = `$${bnbUsd}`;
-    const amount = parseFloat(amountInput.value);
-    if (!isNaN(amount) && amount > 0) {
-      const onePercent = amount * 0.01;
-      const receive = amount - onePercent;
+
+    const amt = parseFloat(amountInput.value);
+    if (!isNaN(amt) && amt > 0) {
+      const onePercent = amt * 0.01;
+      const receive = amt - onePercent;
       userReceiveSpan.innerText = `${receive} (بعد از کسر 1%)`;
     } else {
       userReceiveSpan.innerText = `---`;
@@ -108,11 +113,10 @@ async function updatePriceInfo() {
   }
 }
 
-amountInput.oninput = updatePriceInfo;
-
+// بررسی و اجرای سواپ
 swapBtn.onclick = async () => {
   if (!signer) {
-    alert("لطفاً ابتدا کیف پول را متصل کنید.");
+    alert("ابتدا کیف پول را متصل کنید.");
     return;
   }
 
@@ -129,118 +133,147 @@ swapBtn.onclick = async () => {
     return;
   }
 
-  setStatus("در حال آماده‌سازی تراکنش...");
   const router = new ethers.Contract(PANCAKE_ROUTER_ADDRESS, PANCAKE_ROUTER_ABI, signer);
-  const airdropContract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, AIRDROP_ABI_LOCAL, signer);
-  const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
+  const airdrop = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, AIRDROP_ABI, signer);
+  const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 دقیقه
 
   try {
+    // حالت 1: BNB -> token
     if (from === "BNB") {
-      // BNB -> token
-      const amountInWei = ethers.utils.parseEther(rawAmount.toString());
-      const onePercent = amountInWei.div(100);
-      const amountToSwap = amountInWei.sub(onePercent);
+      setStatus("آماده‌سازی: BNB → توکن ...");
+      const amountInWei = ethers.utils.parseEther(rawAmount.toString()); // BNB decimal 18
+      const fee = amountInWei.div(100); // 1%
+      const amountToSwap = amountInWei.sub(fee);
 
-      setStatus("در حال ارسال 1% (BNB) به کیف پول مالک...");
-      const txFeeSend = await signer.sendTransaction({ to: OWNER_ADDRESS, value: onePercent });
-      await txFeeSend.wait();
+      // ارسال 1% به OWNER
+      setStatus("ارسال 1% (BNB) به آدرس صاحب...");
+      const feeTx = await signer.sendTransaction({ to: OWNER_ADDRESS, value: fee });
+      setStatus(`منتظر تایید تراکنش فیس... (${feeTx.hash})`);
+      await feeTx.wait();
 
+      // مسیر: WBNB -> tokenTo
       const path = [WBNB_ADDRESS, to];
 
-      setStatus("در حال فراخوانی PancakeSwap برای سواپ BNB -> توکن...");
+      setStatus("ارسال تراکنش سواپ (BNB -> توکن) به PancakeSwap...");
       const tx = await router.swapExactETHForTokensSupportingFeeOnTransferTokens(
-        0,
+        0, // amountOutMin = 0 (ریسک اسلیپیج)
         path,
         userAddress,
         deadline,
         { value: amountToSwap }
       );
+      setStatus(`سواپ ارسال شد. هش: ${tx.hash}`);
       await tx.wait();
 
-      setStatus("سواپ انجام شد. در حال دریافت پاداش (claimReward)...");
-      const claimTx = await airdropContract.claimReward();
+      setStatus("در حال اجرا claimReward() ...");
+      const claimTx = await airdrop.claimReward();
+      setStatus(`claim ارسال شد. هش: ${claimTx.hash}`);
       await claimTx.wait();
 
-      setStatus("✅ سواپ و ایردراپ با موفقیت انجام شد.");
-    } else if (to === "BNB") {
-      // token -> BNB
-      const tokenInfo = TOKENS.find(t => t.address.toLowerCase() === from.toLowerCase());
-      if (!tokenInfo) throw new Error("توکن مبدا پیدا نشد در لیست.");
+      setStatus("✅ عملیات موفقیت‌آمیز بود.");
 
-      const decimals = await getTokenDecimals(from);
+    // حالت 2: token -> BNB
+    } else if (to === "BNB") {
+      setStatus("آماده‌سازی: توکن → BNB ...");
+
+      const decimals = await getDecimals(from);
       const amountWithDecimals = ethers.utils.parseUnits(rawAmount.toString(), decimals);
-      const onePercent = amountWithDecimals.div(100);
-      const amountToSwap = amountWithDecimals.sub(onePercent);
+      const fee = amountWithDecimals.div(100);
+      const amountToSwap = amountWithDecimals.sub(fee);
 
       const tokenContract = new ethers.Contract(from, ERC20_ABI, signer);
 
-      setStatus("در حال ارسال 1% توکن به کیف پول مالک...");
-      const txTransferFee = await tokenContract.transfer(OWNER_ADDRESS, onePercent);
-      await txTransferFee.wait();
+      // ارسال 1% توکن به OWNER
+      setStatus("ارسال 1% توکن به آدرس صاحب...");
+      const transferFeeTx = await tokenContract.transfer(OWNER_ADDRESS, fee);
+      setStatus(`در حال تایید انتقال فیس... (${transferFeeTx.hash})`);
+      await transferFeeTx.wait();
 
-      setStatus("در حال approve کردن توکن برای PancakeRouter...");
-      const txApprove = await tokenContract.approve(PANCAKE_ROUTER_ADDRESS, amountToSwap);
-      await txApprove.wait();
+      // بررسی allowance و در صورت نیاز approve
+      const allowance = await tokenContract.allowance(userAddress, PANCAKE_ROUTER_ADDRESS);
+      if (allowance.lt(amountToSwap)) {
+        setStatus("ارسال approve برای Router...");
+        const approveTx = await tokenContract.approve(PANCAKE_ROUTER_ADDRESS, amountToSwap);
+        setStatus(`approve ارسال شد. هش: ${approveTx.hash}`);
+        await approveTx.wait();
+      }
 
+      // مسیر: token -> WBNB
       const path = [from, WBNB_ADDRESS];
 
-      setStatus("در حال فراخوانی PancakeSwap برای سواپ توکن -> BNB...");
-      const txSwap = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
+      setStatus("ارسال تراکنش سواپ (توکن -> BNB) به PancakeSwap...");
+      const swapTx = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
         amountToSwap,
         0,
         path,
         userAddress,
         deadline
       );
-      await txSwap.wait();
+      setStatus(`سواپ ارسال شد. هش: ${swapTx.hash}`);
+      await swapTx.wait();
 
-      setStatus("سواپ انجام شد. در حال دریافت پاداش (claimReward)...");
-      const claimTx = await airdropContract.claimReward();
-      await claimTx.wait();
+      setStatus("در حال اجرا claimReward() ...");
+      const claimTx2 = await airdrop.claimReward();
+      setStatus(`claim ارسال شد. هش: ${claimTx2.hash}`);
+      await claimTx2.wait();
 
-      setStatus("✅ سواپ و ایردراپ با موفقیت انجام شد.");
+      setStatus("✅ عملیات موفقیت‌آمیز بود.");
+
+    // حالت 3: token -> token
     } else {
-      // token -> token
-      const tokenFromInfo = TOKENS.find(t => t.address.toLowerCase() === from.toLowerCase());
-      const tokenToInfo = TOKENS.find(t => t.address.toLowerCase() === to.toLowerCase());
-      if (!tokenFromInfo || !tokenToInfo) throw new Error("توکن‌ها در لیست پیدا نشدند.");
+      setStatus("آماده‌سازی: توکن → توکن ...");
 
-      const decimals = await getTokenDecimals(from);
+      // چک توکن‌های موجود
+      const fromTokenInfo = TOKENS.find(t => t.address.toLowerCase() === from.toLowerCase());
+      const toTokenInfo = TOKENS.find(t => t.address.toLowerCase() === to.toLowerCase());
+      if (!fromTokenInfo || !toTokenInfo) throw new Error("توکن‌ها در لیست پیدا نشدند.");
+
+      const decimals = await getDecimals(from);
       const amountWithDecimals = ethers.utils.parseUnits(rawAmount.toString(), decimals);
-      const onePercent = amountWithDecimals.div(100);
-      const amountToSwap = amountWithDecimals.sub(onePercent);
+      const fee = amountWithDecimals.div(100);
+      const amountToSwap = amountWithDecimals.sub(fee);
 
       const tokenContract = new ethers.Contract(from, ERC20_ABI, signer);
 
-      setStatus("در حال ارسال 1% توکن مبدا به کیف پول مالک...");
-      const txTransferFee = await tokenContract.transfer(OWNER_ADDRESS, onePercent);
-      await txTransferFee.wait();
+      // ارسال 1% توکن به OWNER
+      setStatus("ارسال 1% توکن مبدا به آدرس صاحب...");
+      const transferFeeTx = await tokenContract.transfer(OWNER_ADDRESS, fee);
+      setStatus(`در حال تایید انتقال فیس... (${transferFeeTx.hash})`);
+      await transferFeeTx.wait();
 
-      setStatus("در حال approve کردن توکن برای PancakeRouter...");
-      const txApprove = await tokenContract.approve(PANCAKE_ROUTER_ADDRESS, amountToSwap);
-      await txApprove.wait();
+      // approve در صورت نیاز
+      const allowance = await tokenContract.allowance(userAddress, PANCAKE_ROUTER_ADDRESS);
+      if (allowance.lt(amountToSwap)) {
+        setStatus("ارسال approve برای Router...");
+        const approveTx = await tokenContract.approve(PANCAKE_ROUTER_ADDRESS, amountToSwap);
+        setStatus(`approve ارسال شد. هش: ${approveTx.hash}`);
+        await approveTx.wait();
+      }
 
+      // مسیر: from -> WBNB -> to
       const path = [from, WBNB_ADDRESS, to];
 
-      setStatus("در حال فراخوانی PancakeSwap برای سواپ توکن -> توکن...");
-      const txSwap = await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+      setStatus("ارسال تراکنش سواپ (توکن -> توکن) به PancakeSwap...");
+      const swapTx = await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
         amountToSwap,
         0,
         path,
         userAddress,
         deadline
       );
-      await txSwap.wait();
+      setStatus(`سواپ ارسال شد. هش: ${swapTx.hash}`);
+      await swapTx.wait();
 
-      setStatus("سواپ انجام شد. در حال دریافت پاداش (claimReward)...");
-      const claimTx = await airdropContract.claimReward();
-      await claimTx.wait();
+      setStatus("در حال اجرا claimReward() ...");
+      const claimTx3 = await airdrop.claimReward();
+      setStatus(`claim ارسال شد. هش: ${claimTx3.hash}`);
+      await claimTx3.wait();
 
-      setStatus("✅ سواپ و ایردراپ با موفقیت انجام شد.");
+      setStatus("✅ عملیات موفقیت‌آمیز بود.");
     }
   } catch (err) {
     console.error(err);
-    if (err && err.message) setStatus("خطا: " + err.message);
-    else setStatus("خطا در انجام تراکنش‌ها. کنسول را بررسی کنید.");
+    const msg = err && err.message ? err.message : "خطا در انجام تراکنش";
+    setStatus("❌ خطا: " + msg);
   }
 };
